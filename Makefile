@@ -15,7 +15,7 @@ PYTHON_INTERPRETER = python
 .PHONY: requirements
 requirements:
 	conda env update --name $(PROJECT_NAME) --file environment.yml --prune
-	
+	conda activate $(PROJECT_NAME)
 
 
 
