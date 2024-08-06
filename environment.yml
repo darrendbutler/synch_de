@@ -6,6 +6,7 @@ dependencies:
   - black
   - flake8
   - isort
+  - condax
   - pip
   - typer
   - loguru
