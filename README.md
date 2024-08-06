@@ -62,3 +62,8 @@ Investigating Distance Learning
 
 --------
 
+## Installation Instructions
+
+This code base follows practices from version 2 of the [cookie cutter data science](https://cookiecutter-data-science.drivendata.org/) practices. Please conduct the following steps:
+
+## Best Practices
