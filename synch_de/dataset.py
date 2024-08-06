@@ -11,9 +11,7 @@ from synch_de.config import PROCESSED_DATA_DIR, RAW_DATA_DIR
 
 def greet():
     """Greet the user. This function is used for as an example during onboarding."""
-    logger.info(
-        "Hello, welcome to the dataset processing script!"
-    )
+    logger.info("Hello, welcome to the dataset processing script!")
 
 
 app = typer.Typer()
@@ -30,9 +28,7 @@ def main(
     logger.info("Processing dataset...")
     for i in tqdm(range(10), total=10):
         if i == 5:
-            logger.info(
-                "Something happened for iteration 5."
-            )
+            logger.info("Something happened for iteration 5.")
     logger.success("Processing dataset complete.")
     # -----------------------------------------
 
