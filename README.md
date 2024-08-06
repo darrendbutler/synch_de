@@ -23,8 +23,11 @@ Investigating Distance Learning
 ├── models             <- Trained and serialized models, model predictions, or model summaries
 │
 ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-│                         the creator's initials, and a short `-` delimited description, e.g.
-│                         `1.0-jqp-initial-data-exploration`.
+│   │                     the creator's initials, and a short `-` delimited description, e.g.
+│   │                     `1.0-jqp-initial-data-exploration`.
+│   ├── exploratory    <- Contains initial explorations
+│   └── for_reports    <- Contains more polished work that can be exported as html or PDF to  
+│                         the reports/ directory
 │
 ├── pyproject.toml     <- Project configuration file with package metadata for 
 │                         synch_de and configuration for tools like black
