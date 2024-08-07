@@ -7,7 +7,9 @@ dependencies:
   - flake8
   - isort
   - condax
+  - dask
   - pip
+  - conda
   - typer
   - loguru
   - tqdm
@@ -18,6 +20,7 @@ dependencies:
   - notebook
   - numpy
   - pandas
+  - pytest
   - scikit-learn
   - pip:
       - python-dotenv

@@ -94,8 +94,8 @@ make requirements             # Install Python Dependencies
 
 We follow best practices for maintaining code and communicating. Please refer to the following articles.
 
-Please read the [opinions](https://cookiecutter-data-science.drivendata.org/opinions/) of cookie cutter data science.
-
+- Please read the [opinions](https://cookiecutter-data-science.drivendata.org/opinions/) of cookie cutter data science.
+- Read the [using the template guide](https://cookiecutter-data-science.drivendata.org/using-the-template/)
 - Start from source code.
 - [nbautoexport](https://github.com/drivendataorg/nbautoexport)- Converting Exploratory Notebooks to Scripts for Code Review
 - Clean Code ML - Best practices on writing maintainable and clear data science code
