@@ -16,7 +16,7 @@ dependencies:
   - ipython
   - jupyterlab
   - matplotlib
-  - nbautoexport        # Exports Jupyter Notebooks to Python scripts when saved from jupyter server https://drivendata.co/blog/nbautoexport-jupyter-code-review/
+  - nbautoexport # Exports Jupyter Notebooks to Python scripts when saved from jupyter server https://drivendata.co/blog/nbautoexport-jupyter-code-review/
   - notebook
   - numpy
   - pandas
