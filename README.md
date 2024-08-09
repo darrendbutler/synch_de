@@ -101,3 +101,8 @@ We follow best practices for maintaining code and communicating. Please refer to
 - Clean Code ML - Best practices on writing maintainable and clear data science code
   - [8 min article](https://www.thoughtworks.com/insights/blog/coding-habits-data-scientists)
   - [Tutorial on Github](https://github.com/davified/clean-code-ml?tab=readme-ov-file)
+
+
+## Writing Research Papers
+
+Use the [ACM Journals Primary Article Template](https://www.overleaf.com/latex/templates/acm-journals-primary-article-template/cpkjqttwbshg) on overleaf. Save final PDFs to the [reports](reports/) directory after submission.
