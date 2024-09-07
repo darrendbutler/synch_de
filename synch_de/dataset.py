@@ -35,6 +35,7 @@ def read_course_table() -> pd.DataFrame:
     """Read the course table."""
     df = pd.read_csv(
         RAW_DATA_DIR / "course.csv",
+        index_col = "id",
         parse_dates=["start", "stop", "created", "updated"],
         dtype={
             "title": "category",
@@ -105,6 +106,7 @@ def main(
     # ----------------------------------------------
 ):
     #Read the tables
+    course_table = read_course_table()
     task_table = read_task_table()
     telecomsession_table = read_telecomsession_table()
     telecomsession_table.head()
