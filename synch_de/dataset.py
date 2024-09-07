@@ -33,13 +33,28 @@ def read_course_table() -> pd.DataFrame:
     return df
 
 
+def read_task_table() -> pd.DataFrame:
+    """Read the task table."""
+    df = pd.read_csv(
+        RAW_DATA_DIR / "task.csv",
+        parse_dates=[
+            "created",
+            "updated",
+        ],
+        dtype={
+            "user_id": "category",
+            "script": "category",
+            "complete": "category",
+        },
+    )
+    return df
+
+
 def return_int(value: int) -> int:
     """Returns the input value.
     This function is used for as an example during onboarding."""
     return value
 
-
-read_course_table().info()
 
 ############## Refactor main functions below ##############
 app = typer.Typer()
@@ -52,7 +67,22 @@ def main(
     output_path: Path = PROCESSED_DATA_DIR / "dataset.csv",
     # ----------------------------------------------
 ):
-    pass
+    read_course_table().info()
+    task_table = read_task_table()
+    filtered_task_table = task_table[
+        (task_table["script"].str.contains("2022"))
+        & (task_table["script"].str.contains("lesson"))
+        & (task_table["created"] >= pd.Timestamp("2022-08-01"))
+        & (task_table["created"] <= pd.Timestamp("2022-12-31"))
+    ]
+    # Print a list of the unique values in the "script" column
+    filtered_task_table["script"].unique()
+    
+    unique_values_count = filtered_task_table[
+        "script"
+    ].nunique()
+    print(f"Number of unique values: {unique_values_count}")
+    task_table["script"].nunique()
 
 
 if __name__ == "__main__":
