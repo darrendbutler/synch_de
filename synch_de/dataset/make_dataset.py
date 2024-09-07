@@ -19,12 +19,12 @@ from synch_de.dataset.read_data import (
     read_user_table,
     read_channel_table,
 )
+from synch_de.dataset.preprocess import combine_tables
+
 
 def greet():
     """Greet the user. This function is used for as an example during onboarding."""
-    logger.info(
-        "Hello, welcome to the dataset processing script!"
-    )
+    logger.info("Hello, welcome to the dataset processing script!")
     return "Hi!"
 
 
@@ -58,12 +58,12 @@ def main(
         "response": read_response_table(),
         "registration": read_registration_table(),
     }
-    
-    #Loop through the database and .info() each table
-    for key, value in database.items():
-        logger.info(f"Table: {key}")
-        logger.info(value.info())
 
-main()
+    # TODO: Combine tables into flat table
+    df = combine_tables(database)
+
+
+
+
 if __name__ == "__main__":
     app()

@@ -4,7 +4,7 @@ import pandas as pd
 
 from synch_de.config import RAW_DATA_DIR
 
-
+# TODO: Select columns in the read functions with usecols parameter
 def drop_unnamed_columns(df: pd.DataFrame) -> pd.DataFrame:
     """drop any column that starts with 'Unnamed'
 
@@ -226,3 +226,5 @@ def read_content_table() -> pd.DataFrame:
     # Drop any column that starts with 'Unnamed'
     df = drop_unnamed_columns(df)
     return df
+
+
