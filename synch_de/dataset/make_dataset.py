@@ -8,9 +8,16 @@ from tqdm import tqdm
 
 from synch_de.config import PROCESSED_DATA_DIR, RAW_DATA_DIR
 from synch_de.dataset.read_data import (
+    read_content_table,
     read_course_table,
+    read_inbound_table,
+    read_outbound_table,
+    read_registration_table,
+    read_response_table,
     read_task_table,
     read_telecomsession_table,
+    read_user_table,
+    read_channel_table,
 )
 
 def greet():
@@ -39,10 +46,24 @@ def main(
     # ----------------------------------------------
 ):
     # Read the tables
-    course_table = read_course_table()
-    task_table = read_task_table()
-    telecomsession_table = read_telecomsession_table()
+    database = {
+        "telecomsession": read_telecomsession_table(),
+        "channel": read_channel_table(),
+        "course": read_course_table(),
+        "task": read_task_table(),
+        "user": read_user_table(),
+        "content": read_content_table(),
+        "outbound": read_outbound_table(),
+        "inbound": read_inbound_table(),
+        "response": read_response_table(),
+        "registration": read_registration_table(),
+    }
+    
+    #Loop through the database and .info() each table
+    for key, value in database.items():
+        logger.info(f"Table: {key}")
+        logger.info(value.info())
 
-
+main()
 if __name__ == "__main__":
     app()
