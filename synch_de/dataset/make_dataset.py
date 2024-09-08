@@ -63,7 +63,5 @@ def main(
     df = combine_tables(database)
 
 
-
-
 if __name__ == "__main__":
     app()
