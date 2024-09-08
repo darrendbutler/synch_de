@@ -88,20 +88,22 @@ def read_channel_table() -> pd.DataFrame:
     """Read the channel table."""
     df = pd.read_csv(
         RAW_DATA_DIR / "channel.csv",
+        usecols=[
+            "id",
+            "created",
+            "user_id",
+            "kind",
+            "task",
+        ],
         index_col="id",
         parse_dates=[
             "created",
-            "updated",
         ],
         dtype={
             "id": "category",
-            "session_id": "category",
-            "network_code": "category",
-            "service_code": "category",
-            "status_reason": "category",
-            "cost_string": "category",
-            "user_input": "category",
-            "final_output": "category",
+            "user_id": "category",
+            "kind": "category",
+            "task": "category",
         },
     )
     # Drop any column that starts with 'Unnamed'
@@ -117,11 +119,17 @@ def read_user_table() -> pd.DataFrame:
     """
     df = pd.read_csv(
         RAW_DATA_DIR / "user.csv",
+        usecols=[
+            "id",
+            "created",
+            "tester",
+            "active",
+            "opt_out",
+        ],
         index_col="id",
-        parse_dates=["created", "updated", "opt_out"],
+        parse_dates=["created", "opt_out"],
         dtype={
             "id": "category",
-            "phone": "category",
             "tester": "category",
             "active": "category",
         },

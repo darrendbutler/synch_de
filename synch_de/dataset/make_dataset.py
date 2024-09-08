@@ -61,7 +61,8 @@ def main(
 
     # TODO: Combine tables into flat table
     df = combine_tables(database)
-
+    
+    
 
 if __name__ == "__main__":
     app()
