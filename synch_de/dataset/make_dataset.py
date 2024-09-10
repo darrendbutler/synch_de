@@ -47,7 +47,6 @@ def main(
 ):
     # Read the tables
     database = {
-        "telecomsession": read_telecomsession_table(),
         "channel": read_channel_table(),
         "course": read_course_table(),
         "task": read_task_table(),
@@ -59,10 +58,11 @@ def main(
         "registration": read_registration_table(),
     }
 
-    # TODO: Combine tables into flat table
-    df = combine_tables(database)
-    
-    
+    registration_df = read_registration_table()
+    registration_df.info()
+    # # TODO: Combine tables into flat table
+    # df = combine_tables(database)
+
 
 if __name__ == "__main__":
     app()
