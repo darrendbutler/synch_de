@@ -6,6 +6,8 @@ from synch_de.config import RAW_DATA_DIR
 
 
 # TODO: Select columns in the read functions with usecols parameter
+# continue at task table. don't worry aboud renaming id cols at read.
+# specify prefixes in merge function
 def drop_unnamed_columns(df: pd.DataFrame) -> pd.DataFrame:
     """drop any column that starts with 'Unnamed'
 
@@ -147,10 +149,15 @@ def read_registration_table() -> pd.DataFrame:
     """
     df = pd.read_csv(
         RAW_DATA_DIR / "registration.csv",
+        usecols=[
+            "id",
+            "created",
+            "user_id",
+            "course_id",
+        ],
         index_col="id",
         parse_dates=[
             "created",
-            "updated",
         ],
         dtype={
             "id": "category",
