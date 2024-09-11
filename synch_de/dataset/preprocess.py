@@ -110,3 +110,18 @@ def merge_tables(
     df = merge_response_table(response_table, df)
 
     return df
+
+
+def flag_rows(df: pd.DataFrame) -> pd.DataFrame:
+    # keep path = "airscience-2022b" and "airscience-2022a"
+    df["for_analysis"] = df["path"].isin(
+        ["airscience-2022b", "airscience-2022a"]
+    )
+    # is active
+    df["for_analysis"] = df["for_analysis"] & (df["status"] == "active")
+    # tester == 0
+    df["for_analysis"] = df["for_analysis"] & (df["tester"] == 0)
+    return df
+
+    # Save the processed data
+    df.to_pickle(output_path)

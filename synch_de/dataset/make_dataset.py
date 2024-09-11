@@ -21,6 +21,7 @@ from synch_de.dataset.read_data import (
 )
 from synch_de.dataset.preprocess import (
     combine_tables,
+    flag_rows,
     merge_tables,
 )
 
@@ -64,25 +65,27 @@ def main(
         task_table,
         response_table,
     )
-    # TODO: Flag rows to keep for analysis
-    # Flag rows of interest
-    df.tail()
-    df["course_id"].value_counts()
-    df["title"].value_counts()
-    df["path"].value_counts()
-    # keep path = "airscience-2022b" and "airscience-2022a"
-    df["for_analysis"] = df["path"].isin(
-        ["airscience-2022b", "airscience-2022a"]
-    )
-    # is active
-    df["for_analysis"] = df["for_analysis"] & (df["status"] == "active")
-    # tester == 0
-    df["for_analysis"] = df["for_analysis"] & (df["tester"] == 0)
-    df.tail()
-    del df["for_analysis"]
 
-    # Save the processed data
+    # Flag rows of interest
+    df = flag_rows(df)
+
+    # Keep flagged rows and needed columns
+    selected_columns = [
+        "created_resp",
+        "user_id",
+        "script",
+        "key",
+        "value",
+        "correct",
+    ]
+
+    # Keep only rows that are flagged for analysis
+    df = df[df["for_analysis"] == 1][selected_columns]
+    
+    #Save processed data as pickle file
+    output_path = PROCESSED_DATA_DIR / "dataset.pkl"
     df.to_pickle(output_path)
+    
 
 
 if __name__ == "__main__":
