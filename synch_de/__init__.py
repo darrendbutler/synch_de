@@ -1,1 +1,1 @@
-from synch_de import config  # noqa: F401
+#from synch_de import config  # noqa: F401
