@@ -19,7 +19,13 @@ from synch_de.dataset.read_data import (
     read_user_table,
     read_channel_table,
 )
-from synch_de.dataset.preprocess import combine_tables
+from synch_de.dataset.preprocess import (
+    combine_tables,
+    merge_course_registration,
+    merge_response_table,
+    merge_task_table,
+    merge_user_table,
+)
 
 
 def greet():
@@ -45,23 +51,29 @@ def main(
     output_path: Path = PROCESSED_DATA_DIR / "dataset.csv",
     # ----------------------------------------------
 ):
-    # Read the tables
-    database = {
-        "channel": read_channel_table(),
-        "course": read_course_table(),
-        "task": read_task_table(),
-        "user": read_user_table(),
-        "content": read_content_table(),
-        "outbound": read_outbound_table(),
-        "inbound": read_inbound_table(),
-        "response": read_response_table(),
-        "registration": read_registration_table(),
-    }
 
-    registration_df = read_registration_table()
-    registration_df.info()
-    # # TODO: Combine tables into flat table
-    # df = combine_tables(database)
+    # Read the tables into their own dataframes
+    course_table = read_course_table()
+    task_table = read_task_table()
+    user_table = read_user_table()
+    response_table = read_response_table()
+    registration_table = read_registration_table()
+
+    # Combine tables into flat table
+    # merge course with registration
+    df = merge_course_registration(course_table, registration_table)
+
+    # merge registration with user_table
+    df = merge_user_table(user_table, df)
+
+    # merge the task table
+    df = merge_task_table(task_table, df)
+
+    # merge with response table
+    df = merge_response_table(response_table, df)
+
+    # Save the processed data
+    df.to_pickle(output_path)
 
 
 if __name__ == "__main__":
