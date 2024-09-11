@@ -79,3 +79,34 @@ def merge_response_table(response_table, df):
     )
 
     return df
+
+
+def merge_tables(
+    course_table, registration_table, user_table, task_table, response_table
+):
+    """
+    Merge multiple tables to create a consolidated dataset.
+
+    Parameters:
+    course_table (pandas.DataFrame): The table containing course information.
+    registration_table (pandas.DataFrame): The table containing registration information.
+    user_table (pandas.DataFrame): The table containing user information.
+    task_table (pandas.DataFrame): The table containing task information.
+    response_table (pandas.DataFrame): The table containing response information.
+
+    Returns:
+    pandas.DataFrame: The merged dataset.
+    """
+    # merge course with registration
+    df = merge_course_registration(course_table, registration_table)
+
+    # merge registration with user_table
+    df = merge_user_table(user_table, df)
+
+    # merge the task table
+    df = merge_task_table(task_table, df)
+
+    # merge with response table
+    df = merge_response_table(response_table, df)
+
+    return df
