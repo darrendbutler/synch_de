@@ -151,7 +151,7 @@ def read_user_table() -> pd.DataFrame:
         parse_dates=["created", "opt_out"],
         dtype={
             "id": "category",
-            "tester": "category",
+            "tester": "Int64",
             "active": "category",
         },
     )
