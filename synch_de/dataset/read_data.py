@@ -21,6 +21,7 @@ def drop_unnamed_columns(df: pd.DataFrame) -> pd.DataFrame:
     df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
     return df
 
+
 def drop_updated_columns(df: pd.DataFrame) -> pd.DataFrame:
     """Drop any column named 'updated' from the dataframe.
 
@@ -30,9 +31,10 @@ def drop_updated_columns(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         pd.DataFrame: The dataframe with 'updated' columns removed.
     """
-    if 'updated' in df.columns:
-        df = df.drop(columns=['updated'])
+    if "updated" in df.columns:
+        df = df.drop(columns=["updated"])
     return df
+
 
 def read_course_table() -> pd.DataFrame:
     """Read the course table."""
@@ -48,7 +50,8 @@ def read_course_table() -> pd.DataFrame:
         },
     )
     df = drop_unnamed_columns(df)
-    
+    df = drop_updated_columns(df)
+
     return df
 
 
@@ -69,6 +72,7 @@ def read_task_table() -> pd.DataFrame:
         },
     )
     df = drop_unnamed_columns(df)
+    df = drop_updated_columns(df)
     return df
 
 
@@ -96,6 +100,7 @@ def read_telecomsession_table() -> pd.DataFrame:
     )
     # Drop any column that starts with 'Unnamed'
     df = drop_unnamed_columns(df)
+    df = drop_updated_columns(df)
     return df
 
 
@@ -123,6 +128,7 @@ def read_channel_table() -> pd.DataFrame:
     )
     # Drop any column that starts with 'Unnamed'
     df = drop_unnamed_columns(df)
+    df = drop_updated_columns(df)
     return df
 
 
@@ -151,6 +157,7 @@ def read_user_table() -> pd.DataFrame:
     )
     # Drop any column that starts with 'Unnamed'
     df = drop_unnamed_columns(df)
+    df = drop_updated_columns(df)
     return df
 
 
@@ -180,6 +187,7 @@ def read_registration_table() -> pd.DataFrame:
     )
     # Drop any column that starts with 'Unnamed'
     df = drop_unnamed_columns(df)
+    df = drop_updated_columns(df)
     return df
 
 
@@ -207,6 +215,7 @@ def read_response_table() -> pd.DataFrame:
     )
     # Drop any column that starts with 'Unnamed'
     df = drop_unnamed_columns(df)
+    df = drop_updated_columns(df)
     return df
 
 
@@ -232,6 +241,7 @@ def read_inbound_table() -> pd.DataFrame:
     )
     # Drop any column that starts with 'Unnamed'
     df = drop_unnamed_columns(df)
+    df = drop_updated_columns(df)
     return df
 
 
@@ -285,4 +295,5 @@ def read_content_table() -> pd.DataFrame:
     )
     # Drop any column that starts with 'Unnamed'
     df = drop_unnamed_columns(df)
+    df = drop_updated_columns(df)
     return df
