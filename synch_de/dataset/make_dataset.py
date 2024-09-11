@@ -21,10 +21,7 @@ from synch_de.dataset.read_data import (
 )
 from synch_de.dataset.preprocess import (
     combine_tables,
-    merge_course_registration,
-    merge_response_table,
-    merge_task_table,
-    merge_user_table,
+    merge_tables,
 )
 
 
@@ -59,18 +56,30 @@ def main(
     response_table = read_response_table()
     registration_table = read_registration_table()
 
-    # Combine tables into flat table
-    # merge course with registration
-    df = merge_course_registration(course_table, registration_table)
-
-    # merge registration with user_table
-    df = merge_user_table(user_table, df)
-
-    # merge the task table
-    df = merge_task_table(task_table, df)
-
-    # merge with response table
-    df = merge_response_table(response_table, df)
+    # Combine tables into one flat table
+    df = merge_tables(
+        course_table,
+        registration_table,
+        user_table,
+        task_table,
+        response_table,
+    )
+    # TODO: Flag rows to keep for analysis
+    # Flag rows of interest
+    df.tail()
+    df["course_id"].value_counts()
+    df["title"].value_counts()
+    df["path"].value_counts()
+    # keep path = "airscience-2022b" and "airscience-2022a"
+    df["for_analysis"] = df["path"].isin(
+        ["airscience-2022b", "airscience-2022a"]
+    )
+    # is active
+    df["for_analysis"] = df["for_analysis"] & (df["status"] == "active")
+    # tester == 0
+    df["for_analysis"] = df["for_analysis"] & (df["tester"] == 0)
+    df.tail()
+    del df["for_analysis"]
 
     # Save the processed data
     df.to_pickle(output_path)
