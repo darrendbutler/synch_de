@@ -2,7 +2,7 @@
 
 import pytest
 
-from synch_de import dataset
+from synch_de.dataset.make_dataset import return_int
 from tests.config import TEST_DATA_RETURN_1
 
 
@@ -15,7 +15,7 @@ def test_return_int(sample, expected_output):
     Using this to try testing features.
     """
 
-    assert expected_output == dataset.return_int(
+    assert expected_output == return_int(
         sample
     ), "expected output should be equal to the sample"
 

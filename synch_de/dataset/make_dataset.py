@@ -19,7 +19,11 @@ from synch_de.dataset.read_data import (
     read_user_table,
     read_channel_table,
 )
-from synch_de.dataset.preprocess import combine_tables
+from synch_de.dataset.preprocess import (
+    combine_tables,
+    flag_rows,
+    merge_tables,
+)
 
 
 def greet():
@@ -45,24 +49,43 @@ def main(
     output_path: Path = PROCESSED_DATA_DIR / "dataset.csv",
     # ----------------------------------------------
 ):
-    # Read the tables
-    database = {
-        "telecomsession": read_telecomsession_table(),
-        "channel": read_channel_table(),
-        "course": read_course_table(),
-        "task": read_task_table(),
-        "user": read_user_table(),
-        "content": read_content_table(),
-        "outbound": read_outbound_table(),
-        "inbound": read_inbound_table(),
-        "response": read_response_table(),
-        "registration": read_registration_table(),
-    }
 
-    # TODO: Combine tables into flat table
-    df = combine_tables(database)
+    # Read the tables into their own dataframes
+    course_table = read_course_table()
+    task_table = read_task_table()
+    user_table = read_user_table()
+    response_table = read_response_table()
+    registration_table = read_registration_table()
 
+    # Combine tables into one flat table
+    df = merge_tables(
+        course_table,
+        registration_table,
+        user_table,
+        task_table,
+        response_table,
+    )
 
+    # Flag rows of interest
+    df = flag_rows(df)
+
+    # Keep flagged rows and needed columns
+    selected_columns = [
+        "created_resp",
+        "user_id",
+        "script",
+        "key",
+        "value",
+        "correct",
+    ]
+
+    # Keep only rows that are flagged for analysis
+    df = df[df["for_analysis"] == 1][selected_columns]
+    
+    #Save processed data as pickle file
+    output_path = PROCESSED_DATA_DIR / "dataset.pkl"
+    df.to_pickle(output_path)
+    
 
 
 if __name__ == "__main__":
