@@ -4,7 +4,6 @@ from pathlib import Path
 
 import typer
 from loguru import logger
-from ydata_profiling import ProfileReport
 
 # from tqdm.auto import tqdm # included in case you want to use tqdm
 
@@ -12,7 +11,6 @@ from synch_de.config import (
     PROCESSED_DATA_DIR,
     RAW_DATA_DIR,
     INTERIM_DATA_DIR,
-    REPORTS_DIR,
 )
 from synch_de.dataset.read_data import (
     read_course_table,
@@ -26,6 +24,7 @@ from synch_de.dataset.preprocess import (
     mark_rows_for_analysis,
     merge_tables,
 )
+from synch_de.plots import create_data_profile
 
 
 def greet():
@@ -101,10 +100,7 @@ def main(
     logger.success("Preprocessing complete.")
 
     # Generate a preprocessing report
-    report_title = f"Preprocessing Report for {file_name}"
-    logger.success("Creating Preporeccesing Report...")
-    profile = ProfileReport(df, title=report_title, explorative=True, sortby="created_resp")
-    profile.to_file(REPORTS_DIR / f"{report_title}.html")
+    create_data_profile(df, file_name)
 
 
 if __name__ == "__main__":
