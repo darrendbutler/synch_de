@@ -66,6 +66,9 @@ Investigating Distance Learning
 
 This code base follows practices from version 2 of the [cookie cutter data science](https://cookiecutter-data-science.drivendata.org/) practices. Please conduct the following steps:
 
+Requirements:
+- Python 3.12
+- Conda
 ### Clone the repository
 
 ```{sh}
@@ -88,7 +91,14 @@ Make is typically preinstalled on Mac. Windows users should install Make first i
 ```{sh}
 make create_environment       # Set up and enter python interpreter environment
 make requirements             # Install Python Dependencies
+conda activate synch_de       # Activate new environment
 ```
+
+## How to Access Data
+1. Download the most recent export of the database from the [CMU Box folder](https://cmu.box.com/s/cwultv9v3itwsm9p9lrqspakog1pe2km). If you don't have access email Ren (ddbutler@andrew.cmu.edu) for access.
+
+2. Move the `data.zip` from downloads to the cloned git repository. 
+
 
 ## Best Practices
 
@@ -101,3 +111,8 @@ We follow best practices for maintaining code and communicating. Please refer to
 - Clean Code ML - Best practices on writing maintainable and clear data science code
   - [8 min article](https://www.thoughtworks.com/insights/blog/coding-habits-data-scientists)
   - [Tutorial on Github](https://github.com/davified/clean-code-ml?tab=readme-ov-file)
+
+
+## Writing Research Papers
+
+Use the [ACM Journals Primary Article Template](https://www.overleaf.com/latex/templates/acm-journals-primary-article-template/cpkjqttwbshg) on overleaf. Save final PDFs to the [reports](reports/) directory after submission.

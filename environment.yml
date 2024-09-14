@@ -5,6 +5,7 @@ dependencies:
   - python=3.12
   - black
   - flake8
+  - ipython
   - isort
   - condax
   - dask
@@ -22,7 +23,9 @@ dependencies:
   - pandas
   - pytest
   - scikit-learn
+  - seaborn
+  - ydata-profiling
+  - mkdocs
+  - python-dotenv
   - pip:
-      - python-dotenv
-      - mkdocs
       - -e .
