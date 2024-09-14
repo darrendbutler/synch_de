@@ -5,7 +5,7 @@ from pathlib import Path
 import typer
 from loguru import logger
 
-from synch_de.config import PROCESSED_DATA_DIR, RAW_DATA_DIR
+from synch_de.config import PROCESSED_DATA_DIR, RAW_DATA_DIR, INTERIM_DATA_DIR
 from synch_de.dataset.read_data import (
     read_course_table,
     read_registration_table,
@@ -14,7 +14,8 @@ from synch_de.dataset.read_data import (
     read_user_table,
 )
 from synch_de.dataset.preprocess import (
-    flag_rows,
+    get_analysis_subset,
+    mark_rows_for_analysis,
     merge_tables,
 )
 
@@ -60,7 +61,7 @@ def main(
     )
 
     # Flag rows of interest
-    df = flag_rows(df)
+    df = mark_rows_for_analysis(df)
 
     # Keep flagged rows and needed columns
     selected_columns = [
@@ -70,19 +71,18 @@ def main(
         "key",
         "value",
         "correct",
-        "complete"
+        "complete",
     ]
 
     # Keep only rows that are flagged for analysis
     # TODO: Extract this to a function
-    df = df[df["for_analysis"] == 1][selected_columns]
+    df = get_analysis_subset(df, selected_columns)
 
-    # TODO: Generate dataset for to calculate practice or use function
-
-    # TODO: Create function to extract the survey results
+    # change the data type of the user_id column to category
+    df["user_id"] = df["user_id"].astype("category")
 
     # Save processed data as pickle file
-    output_path = PROCESSED_DATA_DIR / "dataset.pkl"
+    output_path = INTERIM_DATA_DIR / "processed_responses.pkl"
     df.to_pickle(output_path)
 
 

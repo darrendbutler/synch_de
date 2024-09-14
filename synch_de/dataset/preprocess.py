@@ -112,7 +112,7 @@ def merge_tables(
     return df
 
 
-def flag_rows(df: pd.DataFrame) -> pd.DataFrame:
+def mark_rows_for_analysis(df: pd.DataFrame) -> pd.DataFrame:
     # keep path = "airscience-2022b" and "airscience-2022a"
     df["for_analysis"] = df["path"].isin(
         ["airscience-2022b", "airscience-2022a"]
@@ -123,5 +123,7 @@ def flag_rows(df: pd.DataFrame) -> pd.DataFrame:
     df["for_analysis"] = df["for_analysis"] & (df["tester"] == 0)
     return df
 
-    # Save the processed data
-    df.to_pickle(output_path)
+
+def get_analysis_subset(df, selected_columns):
+    df = df[df["for_analysis"] == 1][selected_columns]
+    return df
