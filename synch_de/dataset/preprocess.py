@@ -113,6 +113,18 @@ def merge_tables(
 
 
 def mark_rows_for_analysis(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Marks rows in the DataFrame for analysis based on specific conditions.
+
+    Parameters:
+        df (pd.DataFrame): The input DataFrame.
+
+    Returns:
+        pd.DataFrame: The modified DataFrame with rows marked for analysis.
+
+    """
+
+
     # keep path = "airscience-2022b" and "airscience-2022a"
     df["for_analysis"] = df["path"].isin(
         ["airscience-2022b", "airscience-2022a"]
@@ -121,6 +133,12 @@ def mark_rows_for_analysis(df: pd.DataFrame) -> pd.DataFrame:
     df["for_analysis"] = df["for_analysis"] & (df["status"] == "active")
     # tester == 0
     df["for_analysis"] = df["for_analysis"] & (df["tester"] == 0)
+
+    # create a boolean mask for whether the value in df["created_resp"] is between 2022-08-11 and 2022-12-31
+    df["for_analysis"] = df["for_analysis"] & (
+        df["created_resp"].between("2022-08-11", "2022-12-31")
+    )
+
     return df
 
 
