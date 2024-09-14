@@ -5,6 +5,8 @@ from pathlib import Path
 import typer
 from loguru import logger
 
+# from tqdm.auto import tqdm # included in case you want to use tqdm
+
 from synch_de.config import PROCESSED_DATA_DIR, RAW_DATA_DIR, INTERIM_DATA_DIR
 from synch_de.dataset.read_data import (
     read_course_table,
@@ -43,8 +45,10 @@ def main(
     output_path: Path = PROCESSED_DATA_DIR / "dataset.csv",
     # ----------------------------------------------
 ):
+    logger.info("Preprocessing dataset.")
 
     # Read the tables into their own dataframes
+    logger.info("Reading raw data data.")
     course_table = read_course_table()
     task_table = read_task_table()
     user_table = read_user_table()
@@ -52,6 +56,7 @@ def main(
     registration_table = read_registration_table()
 
     # Combine tables into one flat table
+    logger.info("Merging Tables.")
     df = merge_tables(
         course_table,
         registration_table,
@@ -82,8 +87,11 @@ def main(
     df["user_id"] = df["user_id"].astype("category")
 
     # Save processed data as pickle file
+    logger.info("Saving processed data.")
     output_path = INTERIM_DATA_DIR / "processed_responses.pkl"
     df.to_pickle(output_path)
+
+    logger.success("Preprocessing complete.")
 
 
 if __name__ == "__main__":
