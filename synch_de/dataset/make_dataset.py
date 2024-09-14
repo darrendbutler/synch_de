@@ -4,10 +4,16 @@ from pathlib import Path
 
 import typer
 from loguru import logger
+from ydata_profiling import ProfileReport
 
 # from tqdm.auto import tqdm # included in case you want to use tqdm
 
-from synch_de.config import PROCESSED_DATA_DIR, RAW_DATA_DIR, INTERIM_DATA_DIR
+from synch_de.config import (
+    PROCESSED_DATA_DIR,
+    RAW_DATA_DIR,
+    INTERIM_DATA_DIR,
+    REPORTS_DIR,
+)
 from synch_de.dataset.read_data import (
     read_course_table,
     read_registration_table,
@@ -88,10 +94,17 @@ def main(
 
     # Save processed data as pickle file
     logger.info("Saving processed data.")
-    output_path = INTERIM_DATA_DIR / "processed_responses.pkl"
+    file_name = "processed_responses.pkl"
+    output_path = INTERIM_DATA_DIR / file_name
     df.to_pickle(output_path)
 
     logger.success("Preprocessing complete.")
+
+    # Generate a preprocessing report
+    report_title = f"Preprocessing Report for {file_name}"
+    logger.success("Creating Preporeccesing Report...")
+    profile = ProfileReport(df, title=report_title, explorative=True, sortby="created_resp")
+    profile.to_file(REPORTS_DIR / f"{report_title}.html")
 
 
 if __name__ == "__main__":
