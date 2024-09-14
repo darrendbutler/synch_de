@@ -4,23 +4,16 @@ from pathlib import Path
 
 import typer
 from loguru import logger
-from tqdm import tqdm
 
 from synch_de.config import PROCESSED_DATA_DIR, RAW_DATA_DIR
 from synch_de.dataset.read_data import (
-    read_content_table,
     read_course_table,
-    read_inbound_table,
-    read_outbound_table,
     read_registration_table,
     read_response_table,
     read_task_table,
-    read_telecomsession_table,
     read_user_table,
-    read_channel_table,
 )
 from synch_de.dataset.preprocess import (
-    combine_tables,
     flag_rows,
     merge_tables,
 )
@@ -77,15 +70,20 @@ def main(
         "key",
         "value",
         "correct",
+        "complete"
     ]
 
     # Keep only rows that are flagged for analysis
+    # TODO: Extract this to a function
     df = df[df["for_analysis"] == 1][selected_columns]
-    
-    #Save processed data as pickle file
+
+    # TODO: Generate dataset for to calculate practice or use function
+
+    # TODO: Create function to extract the survey results
+
+    # Save processed data as pickle file
     output_path = PROCESSED_DATA_DIR / "dataset.pkl"
     df.to_pickle(output_path)
-    
 
 
 if __name__ == "__main__":
