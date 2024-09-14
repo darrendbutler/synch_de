@@ -56,7 +56,18 @@ def read_course_table() -> pd.DataFrame:
 
 
 def read_task_table() -> pd.DataFrame:
-    """Read the task table."""
+    """
+    Reads the task table from a CSV file and returns it as a pandas DataFrame.
+    This function performs the following operations:
+    1. Loads the CSV file located at `RAW_DATA_DIR / "task.csv"` into a DataFrame.
+    2. Sets the 'id' column as the index.
+    3. Parses the 'created' and 'updated' columns as datetime objects.
+    4. Specifies data types for several columns to optimize memory usage.
+    5. Drops unnamed columns and updated columns using helper functions.
+    Returns:
+        pd.DataFrame: A DataFrame containing the task data with appropriate indexing and data types.
+    """
+    
     df = pd.read_csv(
         RAW_DATA_DIR / "task.csv",
         index_col="id",
