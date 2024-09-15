@@ -5,6 +5,7 @@ import typer
 from loguru import logger
 
 from synch_de.config import PROCESSED_DATA_DIR, INTERIM_DATA_DIR
+from synch_de.features.education_level import extract_edu_level_data
 from synch_de.features.exam import (
     calculate_exam_features,
     extract_exam_responses,
@@ -34,6 +35,16 @@ def main(
     # Read preprocessed responses
     input_path = INTERIM_DATA_DIR / "processed_responses.pkl"
     preprocessed_responses = pd.read_pickle(input_path)
+
+    ##### Education Level #####
+    # Extract education level responses
+    education_level_responses = extract_edu_level_data(preprocessed_responses)
+    # Exract education level features
+    education_level_features = (
+        education_level_responses[["user_id", "value"]]
+        .copy()
+        .rename(columns={"value": "education_level"})
+    )
 
     ##### Practice Features #####
 
@@ -81,15 +92,23 @@ def main(
     )
 
     # Combine all features
-    features = pd.merge(
-        prior_insutrction_features.reset_index(),
-        exam_features.reset_index(),
-        on="user_id",
-        how="inner",
-    ).merge(
-        practice_features.reset_index(),
-        on="user_id",
-        how="inner",
+    features = (
+        pd.merge(
+            prior_insutrction_features.reset_index(),
+            exam_features.reset_index(),
+            on="user_id",
+            how="inner",
+        )
+        .merge(
+            practice_features.reset_index(),
+            on="user_id",
+            how="inner",
+        )
+        .merge(
+            education_level_features.reset_index(),
+            on="user_id",
+            how="inner",
+        )
     )
 
     # create a data profile for the features
