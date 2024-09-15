@@ -18,20 +18,6 @@ from synch_de.plots import create_data_profile
 app = typer.Typer()
 
 
-def get_exam_score(processed_data: pd.DataFrame) -> pd.Series:
-    """Calculate the exam score for each user."""
-    # Group processed_data by user_id
-    user_group = processed_data.groupby("user_id")
-
-    # Initialize the features dataframe
-    features = pd.DataFrame()
-
-    # Generate exam_score
-    features["exam_score"] = user_group["exam_score"].mean()
-
-    return features["exam_score"]
-
-
 @app.command()
 def main(
     # ---- REPLACE DEFAULT PATHS AS APPROPRIATE ----
@@ -53,10 +39,16 @@ def main(
     exam_responses.to_pickle(INTERIM_DATA_DIR / "exam_responses.pkl")
 
     # Calculate exam features
-    exam_features = exam_responses.groupby(
-        by="user_id",
-        observed=True,
-    ).apply(calculate_exam_features, include_groups=False,)
+    exam_features = (
+        (
+            exam_responses.groupby(by="user_id", observed=True).apply(
+                calculate_exam_features, include_groups=False
+            )
+        )
+        .reset_index(drop=False)
+        .drop(columns="level_1")
+        .set_index("user_id")
+    )
 
     # Create Prior Instruction Features
     prior_instruction_data = extract_prior_instruction_data(
@@ -72,8 +64,12 @@ def main(
         INTERIM_DATA_DIR / "prior_instruction_data.pkl"
     )
 
-    # Concatenate the features to the features dataframe
-    features = pd.concat([features, prior_insutrction_features], axis=1)
+    features = pd.merge(
+        prior_insutrction_features.reset_index(),
+        exam_features.reset_index(),
+        on="user_id",
+        how="inner",
+    )
 
     # note: in cleaning, drop user_id 44758 because they
     # took both exams, may be staff
