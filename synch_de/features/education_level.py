@@ -2,9 +2,17 @@ import pandas as pd
 from pathlib import Path
 import pickle
 
-def extract_edu_level_data(df: pd.DataFrame) -> pd.DataFrame:
-    edu_level_data: pd.DataFrame = df[
-        df["key"].str.contains("profile/schooling")
+def extract_edu_level_data(processed_responses: pd.DataFrame) -> pd.DataFrame:
+    """
+    Extracts education level data from response table data.
+    Parameters:
+        df (pd.DataFrame): The input DataFrame containing education level data.
+    Returns:
+        pd.DataFrame: A DataFrame containing the extracted education level data.
+    """
+    
+    edu_level_data: pd.DataFrame = processed_responses[
+        processed_responses["key"].str.contains("profile/schooling")
     ]
 
     edu_level_data = edu_level_data.drop_duplicates(
