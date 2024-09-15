@@ -9,6 +9,11 @@ from synch_de.features.exam import (
     calculate_exam_features,
     extract_exam_responses,
 )
+from synch_de.features.practice import (
+    calculate_practice_features,
+    extract_practice_responses,
+)
+
 from synch_de.features.prior_insutrction import (
     calculate_prior_instruction_features,
     extract_prior_instruction_data,
@@ -30,8 +35,17 @@ def main(
     input_path = INTERIM_DATA_DIR / "processed_responses.pkl"
     preprocessed_responses = pd.read_pickle(input_path)
 
-    # Initialize the features dataframe
-    features = pd.DataFrame()
+    ##### Practice Features #####
+
+    # Extract practice responses
+    practice_responses = extract_practice_responses(preprocessed_responses)
+    create_data_profile(practice_responses, "practice_responses.pkl")
+    practice_responses.to_pickle(INTERIM_DATA_DIR / "practice_responses.pkl")
+
+    # Calculate Practice Features
+    practice_features = calculate_practice_features(practice_responses.copy())
+
+    ##### Exam Features #####
 
     # Extract responses to exam questions and calculate exam features
     exam_responses = extract_exam_responses(preprocessed_responses)
@@ -50,6 +64,8 @@ def main(
         .set_index("user_id")
     )
 
+    ##### Prior Insutrction Features #####
+
     # Create Prior Instruction Features
     prior_instruction_data = extract_prior_instruction_data(
         preprocessed_responses
@@ -64,12 +80,22 @@ def main(
         INTERIM_DATA_DIR / "prior_instruction_data.pkl"
     )
 
+    # Combine all features
     features = pd.merge(
         prior_insutrction_features.reset_index(),
         exam_features.reset_index(),
         on="user_id",
         how="inner",
+    ).merge(
+        practice_features.reset_index(),
+        on="user_id",
+        how="inner",
     )
+
+    # create a data profile for the features
+    create_data_profile(features, "features.pkl")
+    # Save the features to output_path
+    features.to_csv(INTERIM_DATA_DIR / "features.pkl")
 
     # note: in cleaning, drop user_id 44758 because they
     # took both exams, may be staff
