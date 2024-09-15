@@ -47,7 +47,7 @@ def calculate_prior_instruction_features(
     ].value_counts()
 
     features["proportion_of_prior_insutrction"] = (
-        prior_instruction_data.groupby("user_id", observed=False).apply(
+        prior_instruction_data.groupby("user_id", observed=True).apply(
             get_proportion_of_prior_instruction
         )
     )
