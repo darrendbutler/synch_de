@@ -12,16 +12,63 @@ d <- read_csv('features.csv') %>%
     education_level=='S5 or above' ~ 6,
     education_level=='Completed A level' ~ 7
   )) %>%
-  mutate(education_level_ordinal_ranked = rank(education_level_ordinal))
+  mutate(education_level_ordinal_ranked = rank(education_level_ordinal)) %>%
+  mutate_if(is.numeric, scale)
+
+# First analysis: Practice effect
+
+m <- lm(exam_points ~ unique_practice_questions_answered + education_level_ordinal_ranked, d)
+summary(m)
+m_int <- lm(exam_points ~ unique_practice_questions_answered * education_level_ordinal_ranked, d)
+anova(m, m_int)
+
+d$predicted <- predict(m_int, newdata = d)
+
+ggplot(d, aes(x = unique_practice_questions_answered, y = predicted, color = as.factor(education_level_ordinal_ranked))) +
+  geom_line() +
+  labs(title = "Interaction between Unique Practice Questions Answered and Education Level",
+       x = "X",
+       y = "Predicted Exam Points",
+       color = "Education Level") +
+  theme_minimal() +
+  scale_color_discrete(name = "Education Level")
+
+# Second analysis: Practice and prior instruction
+
+m <- lm(exam_points ~ proportion_of_prior_insutrction + unique_practice_questions_answered + education_level_ordinal_ranked, d)
+summary(m)
+
+m_int<- lm(exam_points ~ proportion_of_prior_insutrction*unique_practice_questions_answered + education_level_ordinal_ranked, d)
+anova(m, m_int)
+
+sjPlot::tab_model(m_int)
+
+plot(m_int) # there is an outlier
+
+
+
+d$predicted <- predict(m_int, newdata = d)
+
+d2 <- d %>% 
+  mutate(high_pi = proportion_of_prior_insutrction > median(proportion_of_prior_insutrction, na.rm=TRUE)) %>%
+  filter(!is.na(high_pi))
+
+ggplot(d2, aes(x = unique_practice_questions_answered, y = predicted, color = high_pi)) +
+  geom_point() +
+  geom_smooth(method = "lm", aes(group = high_pi)) +
+  labs(title = "Interaction Plot", x = "Practice", y = "Exam Points") +
+  theme_minimal()
+
+summary(m_int)
 
 # Remove students with less than x number of survey; unique_practice_questions_answered_scaled_by_max
 
 # Re-run with categorical
 
-m <- lm(exam_points ~ unique_practice_questions_answered + education_level_ordinal_ranked, d)
+m <- lm(exam_points ~ proportion_of_prior_insutrction + education_level_ordinal_ranked, d)
 summary(m)
 
-m_int <- lm(exam_points ~ unique_practice_questions_answered * education_level_ordinal_ranked, d)
+m_int <- lm(exam_points ~ prior_insutruction_reporting_frequency_scaled_by_max * education_level_ordinal_ranked, d)
 anova(m, m_int)
 
 summary(m_int)
@@ -29,13 +76,12 @@ summary(m_int)
 library(ggplot2)
 
 # Create predictions using the interaction model
-d$predicted <- predict(m_int, newdata = d)
 
 
 ggplot(d, aes(x = unique_practice_questions_answered, y = predicted, color = as.factor(education_level_ordinal_ranked))) +
   geom_line() +
   labs(title = "Interaction between Unique Practice Questions Answered and Education Level",
-       x = "Unique Practice Questions Answered",
+       x = "X",
        y = "Predicted Exam Points",
        color = "Education Level") +
   theme_minimal() +
@@ -65,6 +111,10 @@ summary(m)
 plot(m)
 
 cor(d$prior_insutruction_reporting_frequency, d$unique_practice_questions_answered)
+cor(d$proportion_of_prior_insutrction, d$unique_practice_questions_answered, use='pairwise.complete.obs')
+
+
+
 plot(d$prior_insutruction_reporting_frequency, d$unique_practice_questions_answered)
 
 plot(d$prior_insutruction_reporting_frequency_scaled_by_max, d$unique_practice_questions_answered_scaled_by_max)
