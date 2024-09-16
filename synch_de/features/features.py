@@ -114,7 +114,8 @@ def main(
     # create a data profile for the features
     create_data_profile(features, "features.pkl")
     # Save the features to output_path
-    features.to_csv(INTERIM_DATA_DIR / "features.pkl")
+    features.to_csv(PROCESSED_DATA_DIR / "features.csv")
+    features.to_pickle(PROCESSED_DATA_DIR / "features.pkl")
 
     # note: in cleaning, drop user_id 44758 because they
     # took both exams, may be staff
