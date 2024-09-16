@@ -23,6 +23,11 @@ data <- read_csv('data/processed/features.csv') %>%
   # Scale the numerical variables. Q: What's the scaling method here? z-scores?
   mutate_if(is.numeric, scale)
 
+# Descriptive Stats
+install.packages("table1")
+data_non_scaled = read_csv('data/processed/features.csv')
+table1::table1(~proportion_of_prior_insutrction + exam_points + education_level, data = data_non_scaled)
+
 # First analysis: Practice effect considering education level
 
 # Run an additive and interactive model 
@@ -94,7 +99,7 @@ sjPlot::tab_model(model_int)
 plot(model_int) # there is an outlier
 
 
-# Visualize Interaction between Prior Insutrction and Practice
+# Visualize Interaction between Prior Instruction and Practice
 
 data$predicted <- predict(model_int, newdata = data)
 
@@ -109,6 +114,8 @@ ggplot(d2, aes(x = unique_practice_questions_answered, y = predicted, color = hi
   geom_smooth(method = "lm", aes(group = high_pi)) +
   labs(title = "Interaction Between Prior Insutrction and Practice", x = "Practice", y = "Exam Points") +
   theme_minimal()
+
+###### Q: Is the rest of this extra code? ####################################
 
 summary(model_int)
 
