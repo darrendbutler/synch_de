@@ -6,7 +6,7 @@ setwd("../synch_de/")
 getwd()
 
 # Read Data
-data <- read_csv('data/processed/features.csv') %>%
+data <- read_csv('./features.csv') %>%
   janitor::clean_names() %>%
   # Create ordinal feature for education_level
   mutate(education_level_ordinal = case_when(
@@ -24,20 +24,23 @@ data <- read_csv('data/processed/features.csv') %>%
   mutate_if(is.numeric, scale)
 
 # Descriptive Stats
-install.packages("table1")
-data_non_scaled = read_csv('data/processed/features.csv')
+#install.packages("table1")
+data_non_scaled = read_csv('./features.csv')
 table1::table1(~proportion_of_prior_insutrction + exam_points + education_level, data = data_non_scaled)
 
 # First analysis: Practice effect considering education level
 
 # Run an additive and interactive model 
 # Q: Should the interactive or additive model be used?
-model_add <- lm(exam_points ~ unique_practice_questions_answered + education_level_ordinal_ranked, data)
+model_add <- lm(exam_points ~ unique_practice_questions_answered + education_level, data)
 summary(model_add)
-model_int <- lm(exam_points ~ unique_practice_questions_answered * education_level_ordinal_ranked, data)
+sjPlot::tab_model(model_add)
+model_int <- lm(exam_points ~ unique_practice_questions_answered * education_level, data)
 summary(model_int)
 anova(model_add, model_int)
 
+# small sample N
+data$education_level %>% table %>% as.numeric %>% mean
 
 
 # Predict exam_points using interactive model.
@@ -48,18 +51,43 @@ anova(model_add, model_int)
 #.   see the interaction because some lines are less steep.
 data$predicted <- predict(model_int, newdata = data)
 
-plot_interaction_practice_education_ordinal_ranked <- function(data, unique_practice_questions_answered, predicted, education_level_ordinal_ranked) {
-  # Plot interaction between unique practice questions and education level ordinal rank
-  ggplot(data, aes(x = unique_practice_questions_answered, y = predicted, color = as.factor(education_level_ordinal_ranked))) +
-    geom_line() +
-    labs(title = "Interaction between Unique Practice Questions Answered and Education Level",
-         x = "Practice Questions Answered Z-scored",
-         y = "Predicted Exam Points Z-scored",
+plot_interaction_practice_education_ordinal_ranked <- function(data) {
+  # Scale the x and y variables
+  #data$unique_practice_questions_answered_scaled <- scale(data$unique_practice_questions_answered)
+  #data$predicted_scaled <- scale(data$predicted)
+  
+  data$predicted <- data$predicted/max(data$predicted) # make it % correct
+  data$exam_points <- data$exam_points/max(data$exam_points)
+  
+  ggplot(data, aes(x = unique_practice_questions_answered, y = predicted, color = as.factor(education_level))) +
+    geom_line() + 
+    #geom_smooth(method = "lm", se = TRUE) + # Linear regression line with SE
+    labs(title = "",
+         x = "% Practice Questions Answered",
+         y = "% Correct Exam Points",
          color = "Education Level") +
     theme_minimal() +
-    scale_color_discrete(name = "Education Level")
+    scale_color_discrete(name = "Education Level") +
+    scale_y_continuous(breaks = seq(0, 1, 0.05))
 }
-plot_interaction_practice_education_ordinal_ranked (data, data$unique_practice_questions_answered, predicted, data$education_level)
+
+# Example call to the function
+plot_interaction_practice_education_ordinal_ranked(data)
+
+
+data$exam_points_perc <- data$exam_points/max(data$exam_points)
+
+ggplot(data, aes(x = unique_practice_questions_answered, y = exam_points_perc)) +
+  geom_point() + 
+  geom_smooth(method = "lm", se = TRUE) + # Linear regression line with SE
+  labs(title = "",
+       x = "% Practice Questions Answered",
+       y = "% Correct Exam Points",
+       color = "Education Level") +
+  theme_minimal() +
+  scale_color_discrete(name = "Education Level") +
+  scale_y_continuous(breaks = seq(0, 1, 0.05))
+
 
 
 # CREATE MORE ACCESSIBLE INTERACTION PLOT
