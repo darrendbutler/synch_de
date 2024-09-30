@@ -1,12 +1,20 @@
 library(tidyverse)
 library(lme4)
 
-# Set to project root
-setwd("../synch_de/")
-getwd()
+# Install the here package if it's not already installed
+if (!require("here")) {
+  install.packages("here")
+}
+
+# Load the here package
+library("here")
+
+# navigate files from project root
+# data directory and access described in readME
+here() 
 
 # Read Data
-data <- read_csv('./features.csv') %>%
+data <- read_csv('data/processed/features.csv') %>%
   janitor::clean_names() %>%
   # Create ordinal feature for education_level
   mutate(education_level_ordinal = case_when(
@@ -24,17 +32,29 @@ data <- read_csv('./features.csv') %>%
   mutate_if(is.numeric, scale)
 
 # Descriptive Stats
-#install.packages("table1")
-data_non_scaled = read_csv('./features.csv')
-table1::table1(~proportion_of_prior_insutrction + exam_points + education_level, data = data_non_scaled)
+# Install the here package if it's not already installed
+if (!require("table1")) {
+  install.packages("table1")
+}
+library(table1)
+data_non_scaled = read_csv('data/processed/features.csv')
+table1(~ unique_practice_questions_answered  + 
+                 proportion_of_prior_insutrction + 
+                 exam_points + education_level, 
+               data = data_non_scaled)
 
-# First analysis: Practice effect considering education level
+# Second analysis: Practice effect considering education level
 
 # Run an additive and interactive model 
 # Q: Should the interactive or additive model be used?
 model_add <- lm(exam_points ~ unique_practice_questions_answered + education_level, data)
 summary(model_add)
+
+if (!require("sjPlot")) {
+  install.packages("sjPlot")
+}
 sjPlot::tab_model(model_add)
+# Interactive model with practice and education
 model_int <- lm(exam_points ~ unique_practice_questions_answered * education_level, data)
 summary(model_int)
 anova(model_add, model_int)
