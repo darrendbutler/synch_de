@@ -1,0 +1,318 @@
+---
+title: "Doer Effect in Non-WEIRD Environments"
+output:
+  html_document:
+    df_print: paged
+---
+
+# How to use a R Notebook
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+# Read Data
+
+```{r}
+library(tidyverse)
+library(lme4)
+library(sjPlot)
+library(table1)
+
+# Install the here package if it's not already installed
+if (!require("here")) {
+  install.packages("here")
+}
+
+# Load the here package
+library("here")
+
+# navigate files from project root
+# data directory and access described in readME
+here() 
+getwd()
+
+# Read Data
+data_z_scored <- read_csv('../../data/processed/features.csv') %>%
+  janitor::clean_names() %>%
+  # Create ordinal feature for education_level
+  mutate(education_level_ordinal = case_when(
+    education_level=='P7 or below' ~ 1,
+    education_level=='S1' ~ 2,
+    education_level=='S2' ~ 3,
+    education_level=='S3' ~ 4,
+    education_level=='S4' ~ 5,
+    education_level=='S5 or above' ~ 6,
+    education_level=='Completed A level' ~ 7
+  )) %>%
+  # Create ordinal ranked feature for education_level. Q: What is a rank?
+  mutate(education_level_ordinal_ranked = rank(education_level_ordinal)) %>%
+  # Scale the numerical variables. Q: What's the scaling method here? z-scores?
+  mutate_if(is.numeric, scale)
+```
+# Descriptive Stats on Raw Features
+
+```{r}
+#install.packages("table1")
+data_non_scaled = read_csv('../../data/processed/features.csv')
+table1::table1(~unique_practice_questions_answered + proportion_of_prior_insutrction + exam_points + education_level, data = data_non_scaled)
+```
+
+## Visualize
+```{r}
+# TODO: Create a visuailization for raw data if needed
+```
+
+
+
+# RQ1: What is the relationship betwen practice and performance, considering only practice?
+
+Practice is positively related to performance.
+
+Note to self: you can compare models side by side with tab_model(m1, m2).
+See also Defining own labels. https://strengejacke.github.io/sjPlot/articles/tab_model_estimates.html
+
+```{r}
+if (!require("sjPlot")) {
+  install.packages("sjPlot")
+}
+library(sjPlot)
+model_pract <- lm(exam_points ~ unique_practice_questions_answered, data_z_scored)
+summary(model_pract)
+
+# Save predicted exam_points
+data_z_scored$pred_exam_w_pract <- predict(model_pract, newdata = data_z_scored)
+
+sjPlot::tab_model(model_pract, file= "simple_regression.html")
+htmltools::includeHTML("simple_regression.html")
+
+```
+## Visualize Regression Model
+
+```{r}
+# Load necessary library
+library(ggplot2)
+
+# Function to visualize the regression model with percentage scaling
+plot_regression_scaled <- function(data, x_var, y_var) {
+  
+  # Scale the x and y variables by their max to get percentages
+  data$scaled_x <- data[[x_var]] / max(data[[x_var]], na.rm = TRUE)
+  data$scaled_y <- data[[y_var]] / max(data[[y_var]], na.rm = TRUE)
+  
+  # Create the plot
+  ggplot(data, aes(x = scaled_x, y = scaled_y)) +
+    geom_point(color = "black", alpha = 0.5) +  # Scatter plot of the data points
+    geom_smooth(method = "lm", se = TRUE, color = "blue") +  # Add the regression line with confidence intervals
+    labs(title = "Linear Regression: Scaled Exam Points vs. Scaled Practice Questions Answered",
+         x = paste("Unique Practice Questions Answered (%)"),
+         y = paste("Exam Points (%)")) +
+    scale_x_continuous(labels = scales::percent_format(accuracy = 1)) +  # Format x-axis as percentage
+    scale_y_continuous(labels = scales::percent_format(accuracy = 1)) +  # Format y-axis as percentage
+    theme_minimal()
+}
+
+# Example usage
+# Fit the model (assuming the data has been loaded)
+# model_pract <- lm(exam_points ~ unique_practice_questions_answered, data)
+
+# Call the function to plot
+plot_regression_scaled(data_non_scaled, "unique_practice_questions_answered", "exam_points")
+
+
+```
+
+# RQ2: What is the relationship between practice and performance, accounting for education level?
+
+## RQ2.1: Is there a main relatinship between practice and performance when cosidering education level?
+
+```{r}
+# Run an additive and interactive model 
+print("Additive")
+model_pract_edu_add <- lm(exam_points ~ unique_practice_questions_answered + education_level, data_z_scored)
+summary(model_pract_edu_add)
+```
+## RQ2.2: Does the relationship between practice and performance change based on education level?
+
+```{r}
+print("Interactive")
+model_pract_edu_int <- lm(exam_points ~ unique_practice_questions_answered * education_level, data_z_scored)
+summary(model_pract_edu_int)
+```
+
+## RQ2.3: Is the relationship between practice and performance better explained by the addition or interaction of education group?
+
+Interactive model better explains relationship between practice and performance when accounting for education.
+
+```{r}
+print("Compare Models")
+# Compute analysis of variance between additive and interaction model
+model_edu_int_add_int <- anova(model_pract_edu_add, model_pract_edu_int)
+model_edu_int_add_int
+```
+### Why might the data suggest the interactive model is better?
+Within each education group, the effect of practice was not significant (𝑝′𝑠 > .05), possibly due to a lack of statistical power as sample sizes within each group were only including an average of 𝑀 = 33.43 samples.
+TLDR: Our Sample Size May not be large enough to estimate a relationship between practice and performacne 
+within each education level.
+ 
+```{r}
+# small sample N
+data_non_scaled$education_level %>% table  %>% as.numeric %>% mean
+
+```
+
+### Visualize Interaction
+NOTE: Conrad has a graph for this already. We can adjust this here.
+
+```{r}
+# Load necessary library
+library(ggplot2)
+
+# Function to create interaction plot between unique_practice_questions_answered and education_level
+plot_interaction <- function(data, x_var, y_var, education_level) {
+  
+  # Create the interaction plot
+  ggplot(data, aes(x = data[[x_var]], y = data[[y_var]], color = data[[education_level]])) +
+    geom_point(alpha = 0.5) +  # Scatter plot of the data points
+    geom_smooth(method = "lm", se = TRUE) +  # Add the regression line with confidence intervals for each group
+    labs(title = "Interaction between Unique Practice Questions Answered and Education Level",
+         x = "Unique Practice Questions Answered",
+         y = "Exam Points",
+         color = "Education Level") +  # Legend title
+    theme_minimal()
+}
+
+# Example usage
+# Call the function to plot, assuming the dataset contains an "education_level" column
+#plot_interaction(data_non_scaled, "unique_practice_questions_answered", "exam_points", "education_level")
+
+```
+
+# RQ2.4: Does the effect of practice on performance change as education level increases?
+
+## Education as ordinal rank
+I would rather report education as an ordinal variable to simplify the regression, but the difference in rates is interesting. However, I am concerned if it worth reporting because of the potential lack of stastical power given then each education groups only has 30 people on avarage in the sample.
+"
+```{r}
+# Run an additive and interactive model 
+print("Additive")
+model_edu_ordinal_add <- lm(exam_points ~ unique_practice_questions_answered + education_level_ordinal_ranked, data_z_scored)
+summary(model_edu_ordinal_add)
+
+print("Interactive")
+model_edu_ordinal_int <- lm(exam_points ~ unique_practice_questions_answered * education_level_ordinal_ranked, data_z_scored)
+summary(model_edu_ordinal_int)
+
+print("Compare Models")
+anova(model_edu_ordinal_add, model_edu_ordinal_int)
+
+```
+# RQ3: What is the relationship between practice and performance, accounting for education level and prior insutrction?
+
+
+# RQ3.1: Is there a relationship between practice and performance, when accounting for prior_instruction? 
+
+```{r}
+model_pract_pi_add <- lm(exam_points ~ unique_practice_questions_answered + proportion_of_prior_insutrction, data_z_scored)
+
+summary(model_pract_pi_add)
+
+# Q: Show Table
+sjPlot::tab_model(model_pract_pi_add, file= "model_pract_pi_add.html")
+htmltools::includeHTML("model_pract_pi_add.html")
+
+```
+
+```{r}
+model_pract_pi_int <- lm(exam_points ~ unique_practice_questions_answered * proportion_of_prior_insutrction, data_z_scored)
+
+summary(model_pract_pi_int)
+
+
+# Q: Show Table
+sjPlot::tab_model(model_pract_pi_int, file= "model_pract_pi_int.html")
+htmltools::includeHTML("model_pract_pi_int.html")
+
+```
+
+```{r}
+print("Compare Models")
+anova(model_pract_pi_add, model_pract_pi_int)
+```
+
+
+# RQ3.1: Is there a relationship between practice and performance, when accounting for the addition of education level and prior_instruction? 
+
+```{r}
+model_pract_edu_pi_add <- lm(exam_points ~ unique_practice_questions_answered + proportion_of_prior_insutrction + education_level, data_z_scored)
+
+summary(model_pract_edu_pi_add)
+
+
+# Q: Show Table
+sjPlot::tab_model(model_pract_edu_pi_add, file= "model_pract_edu_pi_add.html")
+htmltools::includeHTML("model_pract_edu_pi_add.html")
+
+```
+
+# RQ3.2: Is there a relationship between practice and performance, when accounting for the addition of education level and interaction prior_instruction?
+
+```{r}
+model_pract_edu_pi_int <- lm(exam_points ~ unique_practice_questions_answered * proportion_of_prior_insutrction + (unique_practice_questions_answered + education_level), data_z_scored)
+
+summary(model_pract_edu_pi_int)
+
+# Q: Show Table
+sjPlot::tab_model(model_pract_edu_pi_int, file= "model_pract_edu_pi_int.html")
+htmltools::includeHTML("model_pract_edu_pi_int.html")
+
+```
+
+```{r}
+sjPlot::tab_model(
+  model_pract,
+  model_pract_edu_int,
+  model_pract_edu_add,
+  model_pract_edu_pi_add, 
+  model_pract_edu_pi_int,
+  show.reflvl = TRUE,
+  dv.labels = c("Practice Only", "xEducation", "+Education", "+Prior Insutrction +Edu.", "xPrior Insutrction + Edu."),
+  file = "practice_models_table.html")
+
+htmltools::includeHTML("practice_models_table.html")
+```
+
+# RQ3.3: Is the relationship between pracice and performance better explained when accounting for interaction or addition of prior instruction?
+
+There is no difference between the additive or interactive model.  
+
+```{r}
+anova(model_pract_edu_pi_add, model_pract_edu_pi_int)
+```
+
+```{r}
+# Assuming the vector is data_non_scaled$unique_practice_questions_answered
+
+# Step 1: Find the maximum value
+max_value <- max(data_non_scaled$unique_practice_questions_answered)
+
+# Step 2: Count how many times the maximum value appears
+count_max <- sum(data_non_scaled$unique_practice_questions_answered == max_value)
+
+# Step 3: Calculate the total number of values in the vector
+total_count <- length(data_non_scaled$unique_practice_questions_answered)
+
+# Step 4: Calculate the percentage of values with the maximum value
+percentage_max <- (count_max / total_count) * 100
+
+# View the result
+percentage_max
+
+```
+
