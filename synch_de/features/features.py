@@ -45,6 +45,8 @@ def main(
         .copy()
         .rename(columns={"value": "education_level"})
     )
+    create_data_profile(education_level_features, "education_level_responses.pkl")
+    education_level_features.to_pickle(INTERIM_DATA_DIR / "education_level_responses.pkl")
 
     ##### Practice Features #####
 
@@ -97,24 +99,24 @@ def main(
             prior_insutrction_features.reset_index(),
             exam_features.reset_index(),
             on="user_id",
-            how="inner",
+            how="outer",
         )
         .merge(
             practice_features.reset_index(),
             on="user_id",
-            how="inner",
+            how="outer",
         )
         .merge(
             education_level_features.reset_index(),
             on="user_id",
-            how="inner",
+            how="outer",
         )
     )
 
     # create a data profile for the features
-    create_data_profile(features, "features.pkl")
+    create_data_profile(features, "features_outer.pkl")
     # Save the features to output_path
-    features.to_csv(INTERIM_DATA_DIR / "features.pkl")
+    features.to_csv(PROCESSED_DATA_DIR / "features_outer.csv")
 
     # note: in cleaning, drop user_id 44758 because they
     # took both exams, may be staff
