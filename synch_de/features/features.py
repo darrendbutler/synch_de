@@ -45,8 +45,6 @@ def main(
         .copy()
         .rename(columns={"value": "education_level"})
     )
-    create_data_profile(education_level_features, "education_level_responses.pkl")
-    education_level_features.to_pickle(INTERIM_DATA_DIR / "education_level_responses.pkl")
 
     ##### Practice Features #####
 
@@ -117,7 +115,6 @@ def main(
     create_data_profile(features, "features.pkl")
     # Save the features to output_path
     features.to_csv(PROCESSED_DATA_DIR / "features.csv")
-
     features.to_pickle(PROCESSED_DATA_DIR / "features.pkl")
 
     # note: in cleaning, drop user_id 44758 because they
