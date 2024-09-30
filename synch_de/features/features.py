@@ -118,6 +118,8 @@ def main(
     # Save the features to output_path
     features.to_csv(PROCESSED_DATA_DIR / "features.csv")
 
+    features.to_pickle(PROCESSED_DATA_DIR / "features.pkl")
+
     # note: in cleaning, drop user_id 44758 because they
     # took both exams, may be staff
     # Consider how you'd like to deal with scaling and outliers
