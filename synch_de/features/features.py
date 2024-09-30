@@ -99,24 +99,24 @@ def main(
             prior_insutrction_features.reset_index(),
             exam_features.reset_index(),
             on="user_id",
-            how="outer",
+            how="inner",
         )
         .merge(
             practice_features.reset_index(),
             on="user_id",
-            how="outer",
+            how="inner",
         )
         .merge(
             education_level_features.reset_index(),
             on="user_id",
-            how="outer",
+            how="inner",
         )
     )
 
     # create a data profile for the features
-    create_data_profile(features, "features_outer.pkl")
+    create_data_profile(features, "features.pkl")
     # Save the features to output_path
-    features.to_csv(PROCESSED_DATA_DIR / "features_outer.csv")
+    features.to_csv(PROCESSED_DATA_DIR / "features.csv")
 
     # note: in cleaning, drop user_id 44758 because they
     # took both exams, may be staff
