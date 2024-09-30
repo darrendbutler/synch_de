@@ -215,6 +215,38 @@ anova(model_edu_ordinal_add, model_edu_ordinal_int)
 ```
 # RQ3: What is the relationship between practice and performance, accounting for education level and prior insutrction?
 
+
+# RQ3.1: Is there a relationship between practice and performance, when accounting for prior_instruction? 
+
+```{r}
+model_pract_pi_add <- lm(exam_points ~ unique_practice_questions_answered + proportion_of_prior_insutrction, data_z_scored)
+
+summary(model_pract_pi_add)
+
+# Q: Show Table
+sjPlot::tab_model(model_pract_pi_add, file= "model_pract_pi_add.html")
+htmltools::includeHTML("model_pract_pi_add.html")
+
+```
+
+```{r}
+model_pract_pi_int <- lm(exam_points ~ unique_practice_questions_answered * proportion_of_prior_insutrction, data_z_scored)
+
+summary(model_pract_pi_int)
+
+
+# Q: Show Table
+sjPlot::tab_model(model_pract_pi_int, file= "model_pract_pi_int.html")
+htmltools::includeHTML("model_pract_pi_int.html")
+
+```
+
+```{r}
+print("Compare Models")
+anova(model_pract_pi_add, model_pract_pi_int)
+```
+
+
 # RQ3.1: Is there a relationship between practice and performance, when accounting for the addition of education level and prior_instruction? 
 
 ```{r}
@@ -250,7 +282,7 @@ sjPlot::tab_model(
   model_pract_edu_pi_add, 
   model_pract_edu_pi_int,
   show.reflvl = TRUE,
-  dv.labels = c("Practice Only", "+Education", "xEducation", "+Prior Insutrction +Edu.", "xPrior Insutrction + Edu."),
+  dv.labels = c("Practice Only", "xEducation", "+Education", "+Prior Insutrction +Edu.", "xPrior Insutrction + Edu."),
   file = "practice_models_table.html")
 
 htmltools::includeHTML("practice_models_table.html")
@@ -262,5 +294,25 @@ There is no difference between the additive or interactive model.
 
 ```{r}
 anova(model_pract_edu_pi_add, model_pract_edu_pi_int)
+```
+
+```{r}
+# Assuming the vector is data_non_scaled$unique_practice_questions_answered
+
+# Step 1: Find the maximum value
+max_value <- max(data_non_scaled$unique_practice_questions_answered)
+
+# Step 2: Count how many times the maximum value appears
+count_max <- sum(data_non_scaled$unique_practice_questions_answered == max_value)
+
+# Step 3: Calculate the total number of values in the vector
+total_count <- length(data_non_scaled$unique_practice_questions_answered)
+
+# Step 4: Calculate the percentage of values with the maximum value
+percentage_max <- (count_max / total_count) * 100
+
+# View the result
+percentage_max
+
 ```
 
