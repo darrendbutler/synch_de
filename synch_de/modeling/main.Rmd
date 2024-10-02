@@ -214,6 +214,23 @@ anova(model_edu_ordinal_add, model_edu_ordinal_int)
 
 ```
 # RQ3: What is the relationship between practice and performance, accounting for education level and prior insutrction?
+```{r}
+# Read data
+data <- read_csv('../../data/processed/features.csv')
+
+# Fit the model with interaction
+#model <- lm(exam_points ~ unique_practice_questions_answered , data = data)
+
+# Create the faceted scatterplot and interaction plot
+#interplot(m = model,var1= "Number of Practice Questions Answered" ,var2="Exam_Score") + 
+ # xlab("Number of Practice Questions Answered") + 
+ # ylab("Exam Score") + 
+ # ggtitle("Interaction between Prior Listening and Practice on Exam Scores") +
+ # facet_wrap(~ Prior_Listening)
+#theme_few()
+
+
+```
 
 
 # RQ3.1: Is there a relationship between practice and performance, when accounting for prior_instruction? 
@@ -246,6 +263,14 @@ print("Compare Models")
 anova(model_pract_pi_add, model_pract_pi_int)
 ```
 
+```{r}
+library(interplot)
+ model_pract_pi_int <- lm(exam_points ~ unique_practice_questions_answered * proportion_of_prior_insutrction, data_z_scored)
+interplot(m= model_pract_pi_int,var1="unique_practice_questions_answered",var2="proportion_of_prior_insutrction") + labs(title = "Unique Practice Questions vs Estimated Coefficient for Doing",
+       x = "Unique Practice Questions Answered",
+       y = "Estimated Coefficient for Doing") +
+  theme_minimal()
+```
 
 # RQ3.1: Is there a relationship between practice and performance, when accounting for the addition of education level and prior_instruction? 
 
